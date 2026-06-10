@@ -1,27 +1,49 @@
 package com.pluralsight.sneakerdrops;
 
 import com.pluralsight.sneakerdrops.data.BrandRepository;
+import com.pluralsight.sneakerdrops.data.SneakerRepository;
 import com.pluralsight.sneakerdrops.models.Brand;
-import com.pluralsight.sneakerdrops.service.DropService;
+import com.pluralsight.sneakerdrops.models.Sneaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import java.util.Scanner;
 
 @Component
 public class StartupRunner implements CommandLineRunner {
 
     private final BrandRepository brandRepository;
+    private final SneakerRepository sneakerRepository;
 
     @Autowired
-    public StartupRunner(BrandRepository brandRepository) {
+    public StartupRunner(BrandRepository brandRepository, SneakerRepository sneakerRepository) {
         this.brandRepository = brandRepository;
+        this.sneakerRepository = sneakerRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
         seedData();
-        for (Brand b : brandRepository.findAll()) {
-            System.out.println(b.getId() + " - " + b.getName());
+        Scanner scanner = new Scanner(System.in);
+        boolean running = true;
+        while (running) {
+            System.out.println("\n===Sneaker Drops===");
+            System.out.println("1)List all shoes");
+            System.out.println("0)Quit");
+            System.out.print("Choose: ");
+            switch (scanner.nextLine()) {
+                case "1" -> listSneakers();
+                case "0" -> running = false;
+                default -> System.out.println("Invalid input");
+            }
+        }
+    }
+
+    private void listSneakers() {
+        System.out.println("---" +  sneakerRepository.count() + " Sneakers---");
+        for (Sneaker s : sneakerRepository.findAll()) {
+            System.out.println(s.getId() + " - " + s.getModel() + "(" + s.getPrice() + ")");
         }
     }
 
@@ -32,6 +54,13 @@ public class StartupRunner implements CommandLineRunner {
             brandRepository.save(new Brand("New Balance"));
             brandRepository.save(new Brand("Reebok"));
             brandRepository.save(new Brand("Prada"));
+        }
+        if (sneakerRepository.count() == 0) {
+            sneakerRepository.save(new Sneaker("Air Force 1", 100, 1972));
+            sneakerRepository.save(new Sneaker("Air Jordan 1", 180, 1973));
+            sneakerRepository.save(new Sneaker("Prada Cup", 900, 2000));
+            sneakerRepository.save(new Sneaker("Yeezy", 220, 2012));
+            sneakerRepository.save(new Sneaker("Air Max", 180, 1985));
         }
     }
 }
