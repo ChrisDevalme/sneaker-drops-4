@@ -4,6 +4,7 @@ import com.pluralsight.sneakerdrops.data.BrandRepository;
 import com.pluralsight.sneakerdrops.data.SneakerRepository;
 import com.pluralsight.sneakerdrops.models.Brand;
 import com.pluralsight.sneakerdrops.models.Sneaker;
+import com.pluralsight.sneakerdrops.service.DropService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -15,27 +16,35 @@ public class StartupRunner implements CommandLineRunner {
 
     private final BrandRepository brandRepository;
     private final SneakerRepository sneakerRepository;
+    private final DropService dropService;
 
     @Autowired
-    public StartupRunner(BrandRepository brandRepository, SneakerRepository sneakerRepository) {
+    public StartupRunner(BrandRepository brandRepository, SneakerRepository sneakerRepository, DropService dropService) {
         this.brandRepository = brandRepository;
         this.sneakerRepository = sneakerRepository;
+        this.dropService = dropService;
     }
 
     @Override
     public void run(String... args) throws Exception {
         seedData();
+        System.out.println(dropService.getStatus());
+        for (Brand brand : brandRepository.findAll()) {
+            System.out.println(brand.getId() + " - " + brand.getName());
+        }
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
+
         while (running) {
-            System.out.println("\n===Sneaker Drops===");
-            System.out.println("1)List all shoes");
-            System.out.println("0)Quit");
-            System.out.print("Choose: ");
-            switch (scanner.nextLine()) {
-                case "1" -> listSneakers();
-                case "0" -> running = false;
-                default -> System.out.println("Invalid input");
+            System.out.println("\n--- Sneaker Library ---");
+            System.out.println("1) List all sneakers");
+            System.out.println("0) Quit");
+            System.out.print("Your Choice: ");
+
+            switch (scanner.nextInt()) {
+                case 1 ->listSneakers();
+                case 0 -> running = false;
+                default -> System.out.println("Wrong Input!");
             }
         }
     }
